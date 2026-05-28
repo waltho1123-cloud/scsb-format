@@ -384,9 +384,9 @@
           重新上傳
         </button>
       </div>
+      <div id="statusMsg" class="status hidden"></div>
     </div>
   </div>
-  <div id="statusMsg" class="status hidden"></div>
 </div>
 <footer>上海銀行匯款格式轉換 v4 — 純前端處理，資料不會上傳至伺服器</footer>
 
@@ -477,16 +477,11 @@ fileInput.addEventListener('change', e => {
 });
 downloadBtn.addEventListener('click', () => {
   if (!generatedBlob) return;
-  const url = URL.createObjectURL(generatedBlob);
   const a = document.createElement('a');
-  a.href = url;
+  a.href = URL.createObjectURL(generatedBlob);
   a.download = generatedFileName;
-  a.rel = 'noopener';
-  document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  // Safari 非同步觸發下載，延後撤銷 URL 才不會在讀取前就被回收
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  URL.revokeObjectURL(a.href);
   showStatus('success', '✅ 檔案已開始下載');
 });
 resetBtn.addEventListener('click', () => {
@@ -505,8 +500,6 @@ function showStatus(type, msg) {
 }
 
 function processFile(file) {
-  resultSection.classList.add('hidden');
-  statusMsg.classList.add('hidden');
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
